@@ -11,6 +11,20 @@ logger = logging.getLogger(__file__)
 
 
 def get_product_list(page, campaign_id, access_token):
+    """Получает список товаров с Яндекс Маркета.
+
+    Функция взаимодействует с api Яндекс маркета для получения списка товаров.
+
+    Args:
+        page(str): Страница.
+        campaign_id(str): id компании.
+        access_token(str): API токен
+
+    Returns:
+        dict: Данные о товарах
+
+
+    """
     endpoint_url = "https://api.partner.market.yandex.ru/"
     headers = {
         "Content-Type": "application/json",
@@ -30,6 +44,20 @@ def get_product_list(page, campaign_id, access_token):
 
 
 def update_stocks(stocks, campaign_id, access_token):
+    """Обновляет остатки товаров на Яндекс маркете.
+    
+    Функция обновляет количество товаров на складке через API.
+
+    Args:
+        stocks(str): Обновлённый список остатков.
+        campaign_id(str): id компании.
+        access_token(str): API токен.
+
+    Returns:
+        dict: обновлённые данные о товарах.
+
+
+    """
     endpoint_url = "https://api.partner.market.yandex.ru/"
     headers = {
         "Content-Type": "application/json",
@@ -46,6 +74,20 @@ def update_stocks(stocks, campaign_id, access_token):
 
 
 def update_price(prices, campaign_id, access_token):
+    """Обновляет список цен на Яндекс маркете.
+
+    Функция обновляет цены на складке через API.
+
+    Args:
+        prices(str): Обновлённый список цен.
+        campaign_id(str): id компании.
+        access_token(str): API токен.
+
+    Returns:
+        dict: обновлённые данные цен.
+
+
+    """
     endpoint_url = "https://api.partner.market.yandex.ru/"
     headers = {
         "Content-Type": "application/json",
@@ -62,7 +104,19 @@ def update_price(prices, campaign_id, access_token):
 
 
 def get_offer_ids(campaign_id, market_token):
-    """Получить артикулы товаров Яндекс маркета"""
+    """Получает артикулы товаров с Яндекс маркета.
+
+    Функция возвращает артикули товаров.
+
+    Args:
+        campaign_id(str): id компании.
+        market_token(str): API токен.
+
+    Returns:
+        list: список товаров.
+
+
+    """
     page = ""
     product_list = []
     while True:
@@ -78,6 +132,17 @@ def get_offer_ids(campaign_id, market_token):
 
 
 def create_stocks(watch_remnants, offer_ids, warehouse_id):
+    """Создает список остатков для загрузки.
+    
+    Args:
+        watch_remnants(list): Список товаров с остатками.
+        offer_ids(list): Список артикулей неа маркете.
+        warehouse_id(int) - id склада
+    Returns:
+        list: список остатков.
+
+
+    """
     # Уберем то, что не загружено в market
     stocks = list()
     date = str(datetime.datetime.utcnow().replace(microsecond=0).isoformat() + "Z")
@@ -123,6 +188,16 @@ def create_stocks(watch_remnants, offer_ids, warehouse_id):
 
 
 def create_prices(watch_remnants, offer_ids):
+     """Создает список цен для загрузки.
+
+    Args:
+        watch_remnants(list): Список товаров с остатками.
+        offer_ids(list): Список артикулей неа маркете.
+    Returns:
+        list: список цен.
+
+
+    """
     prices = []
     for watch in watch_remnants:
         if str(watch.get("Код")) in offer_ids:
@@ -143,6 +218,17 @@ def create_prices(watch_remnants, offer_ids):
 
 
 async def upload_prices(watch_remnants, campaign_id, market_token):
+     """Загружает список цен на маркет.
+
+    Args:
+        watch_remnants(list): Список товаров с остатками.
+        campaign_id(int): Список артикулей неа маркете.
+        market_token(str) - id склада
+    Returns:
+        list: список загруженных цен.
+
+
+    """
     offer_ids = get_offer_ids(campaign_id, market_token)
     prices = create_prices(watch_remnants, offer_ids)
     for some_prices in list(divide(prices, 500)):
@@ -151,6 +237,17 @@ async def upload_prices(watch_remnants, campaign_id, market_token):
 
 
 async def upload_stocks(watch_remnants, campaign_id, market_token, warehouse_id):
+    """Загружает список остатков на маркет.
+
+    Args:
+        watch_remnants(list): Список товаров с остатками.
+        campaign_id(int): Список артикулей неа маркете.
+        market_token(str) - id склада
+    Returns:
+        list: список загруженных остатков.
+
+
+    """
     offer_ids = get_offer_ids(campaign_id, market_token)
     stocks = create_stocks(watch_remnants, offer_ids, warehouse_id)
     for some_stock in list(divide(stocks, 2000)):
