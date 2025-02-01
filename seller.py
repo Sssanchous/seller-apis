@@ -54,7 +54,7 @@ def get_offer_ids(client_id, seller_token):
         seller_token(str): Api ключ продавца.
 
     Returns:
-        offer_ids: Список артикулов.
+        list: Список артикулов.
     
 
     """
@@ -165,7 +165,7 @@ def create_stocks(watch_remnants, offer_ids):
         offer_ids(list): id клиента.
 
     Returns:
-        stocks: Cписок остатков для загрузки.
+        list: Cписок остатков для загрузки.
     
 
     """
